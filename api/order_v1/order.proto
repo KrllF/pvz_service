@@ -1,0 +1,125 @@
+syntax = "proto3";
+
+package order_v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "github.com/KrllF/pvz_service/pkg/order_v1;order_v1";
+
+service OrderV1 {
+    rpc AcceptOrder(AcceptRequest) returns(AcceptResponse);
+    rpc BulkAcceptOrders(BulkRequest) returns(BulkResponse);
+    rpc ListHistory(google.protobuf.Empty) returns(ListHistoryResponse);
+    rpc ListOrdersUser(ListOrdersUserRequest) returns(ListOrdersUserResponse);
+    rpc ListReturns(ListReturnsRequest) returns(ListReturnsResponse);
+    rpc ProcessClient(ProcessClientRequest) returns(ProcessClientResponse);
+    rpc ReturnOrderToCourier(ReturnOrderToCourierRequest) returns(ReturnOrderToCourierResponse);   
+}
+
+enum PackType {
+    without = 0;
+    bag = 1;
+    box = 2;
+    film = 3;
+}
+
+enum OrderStatus {
+    delivered = 0;
+    accepted = 1;
+    returned = 2;
+}
+
+enum Operation {
+    return = 0;
+    issue = 1;
+}
+
+message Pack {
+    PackType packtype = 1;
+    optional PackType extrapack = 2;
+}
+
+message Order {
+    int64 orderid = 1;
+    int64 userid = 2;
+    int64 weight = 3;
+    int64 price = 4;
+    Pack packaging = 5;
+    google.protobuf.Timestamp instoragefrom = 6;
+    google.protobuf.Timestamp shelflife = 7;
+    string status = 8;
+    google.protobuf.Timestamp twodaysoflife = 9;
+    google.protobuf.Timestamp lastupdate = 10;
+}
+
+message AcceptRequest {
+    int64 order_id = 1;
+    int64 user_id = 2;
+    int64 weight = 3;
+    int64 price = 4;
+    PackType pack_type = 5;
+    optional PackType extra_pack = 6;
+    google.protobuf.Timestamp shelf_life = 7;
+}
+
+message AcceptResponse {
+    bool success = 1;
+}
+
+message BulkRequest {
+    string Path = 1;
+}
+
+message BulkResponse {
+    int64 Count = 1;
+}
+
+message ListHistoryResponse {
+    repeated Order orders = 1;
+}
+
+message ListOrdersUserRequest {
+    int64 user_id = 1;
+    optional int64 n = 2;
+    optional bool in_pvz = 3;
+    optional int64 limit = 4;
+    optional int64 page = 5;
+    optional bool pag = 6;
+    optional bool finder = 7;
+    optional string order_finder = 8;
+}
+
+message ListOrdersUserResponse {
+    repeated Order orders = 1;
+}
+
+message ListReturnsRequest {
+    optional int64 limit = 1;
+    optional int64 page = 2;
+    optional bool finder = 3;
+    optional string order_finder = 4;
+}
+
+message ListReturnsResponse {
+    int64 count = 1;
+    repeated Order returns = 2;
+}
+
+message ProcessClientRequest {
+    int64 user_id = 1;
+    Operation operation = 2;
+    repeated int64 order_ids = 3;
+}
+
+message ProcessClientResponse {
+    repeated int64 order_ids = 1;
+}
+
+message ReturnOrderToCourierRequest {
+    int64 order_id = 1;
+}
+
+message ReturnOrderToCourierResponse {
+    bool success = 1;
+}

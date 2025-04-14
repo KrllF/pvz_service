@@ -1,0 +1,5 @@
+read: "1h"
+write: "1h"
+idle: "1h"
+read_header: "1h"
+word: "accepted"
